@@ -1,0 +1,98 @@
+:root {
+  --bg: #0b0d12;
+  --panel: rgba(12, 16, 24, 0.85);
+  --text: #e8edf2;
+  --muted: #8b93a1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+#root, body > div {
+  height: 100%;
+}
+
+.map-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.map-container {
+  position: absolute;
+  inset: 0;
+}
+
+.panel {
+  position: absolute;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+}
+
+.legend {
+  top: 14px;
+  right: 14px;
+  min-width: 180px;
+}
+
+.legend h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status {
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-ok {
+  background: #4ade80;
+}
+
+.status-warn {
+  background: #fbbf24;
+}
+
+.status-err {
+  background: #f87171;
+}

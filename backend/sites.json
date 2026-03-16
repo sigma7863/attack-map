@@ -1,0 +1,12 @@
+{
+  "sites": {
+    "tokyo": { "id": "tokyo", "label": "Tokyo DC", "lat": 35.6804, "lng": 139.7690 },
+    "osaka": { "id": "osaka", "label": "Osaka DC", "lat": 34.6937, "lng": 135.5023 },
+    "virginia": { "id": "virginia", "label": "Virginia POP", "lat": 38.0336, "lng": -78.5080 }
+  },
+  "cidrMap": [
+    ["203.0.113.0/24", "tokyo"],
+    ["198.51.100.0/24", "osaka"],
+    ["192.0.2.0/24", "virginia"]
+  ]
+}

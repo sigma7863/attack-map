@@ -1,0 +1,23 @@
+{
+  "name": "attack-map-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --loader tsx server.ts",
+    "dev": "tsx server.ts"
+  },
+  "dependencies": {
+    "ipaddr.js": "^2.1.0",
+    "maxmind": "^4.0.0",
+    "uuid": "^9.0.1",
+    "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/uuid": "^9.0.8",
+    "@types/ws": "^8.5.10",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
+}
