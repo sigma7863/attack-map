@@ -23,5 +23,7 @@ NEXT_PUBLIC_WS_URL=ws://localhost:4000/ws pnpm dev
 - `LOG_PATH`: JSON Lines のログファイル (省略時は stdin)
 - `SITE_MAP_PATH`: `sites.json` パス
 - `NEXT_PUBLIC_WS_URL`: WebSocket URL
-- `NEXT_PUBLIC_MAP_STYLE_URL`: MapLibre スタイルURL (デフォルトはダーク)
+- `NEXT_PUBLIC_MAP_LIGHT_STYLE_URL`: ライト用 MapLibre スタイルURL
+- `NEXT_PUBLIC_MAP_DARK_STYLE_URL`: ダーク用 MapLibre スタイルURL
+- `NEXT_PUBLIC_MAP_STYLE_URL`: 互換用（ライトのデフォルトに使われます）
 - `NEXT_PUBLIC_MAP_TILE_URL`: タイル URL テンプレート (指定時はラスタ)
