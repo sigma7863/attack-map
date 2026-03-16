@@ -27,9 +27,13 @@ const ATTACK_COLORS: Record<string, string> = {
 };
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000/ws";
-const MAP_STYLE_URL =
+const LIGHT_STYLE_URL =
+  process.env.NEXT_PUBLIC_MAP_LIGHT_STYLE_URL ||
   process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
   "https://demotiles.maplibre.org/style.json";
+const DARK_STYLE_URL =
+  process.env.NEXT_PUBLIC_MAP_DARK_STYLE_URL ||
+  "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const MAP_TILE_URL = process.env.NEXT_PUBLIC_MAP_TILE_URL || "";
 
 const MAX_AGE_MS = 12000;
@@ -39,6 +43,7 @@ export default function AttackMap() {
   const mapRef = useRef<Map | null>(null);
   const eventsRef = useRef<EventPayload[]>([]);
   const [connection, setConnection] = useState<"connecting" | "open" | "closed" | "error">("connecting");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   const legendItems = useMemo(() => {
     return Object.keys(ATTACK_COLORS).map((key) => ({
@@ -48,26 +53,17 @@ export default function AttackMap() {
   }, []);
 
   useEffect(() => {
-    const style = MAP_TILE_URL
-      ? ({
-          version: 8,
-          sources: {
-            raster: {
-              type: "raster",
-              tiles: [MAP_TILE_URL],
-              tileSize: 256
-            }
-          },
-          layers: [
-            {
-              id: "raster",
-              type: "raster",
-              source: "raster"
-            }
-          ]
-        } as maplibregl.StyleSpecification)
-      : MAP_STYLE_URL;
+    const stored = window.localStorage.getItem("attack-map-theme");
+    if (stored === "light" || stored === "dark") {
+      setTheme(stored);
+      return;
+    }
+    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+    setTheme(prefersDark ? "dark" : "light");
+  }, []);
 
+  useEffect(() => {
+    const style = getStyle(theme);
     const map = new maplibregl.Map({
       container: "map",
       style,
@@ -81,45 +77,23 @@ export default function AttackMap() {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-left");
 
     map.on("load", () => {
-      map.addSource("arcs", {
-        type: "geojson",
-        data: { type: "FeatureCollection", features: [] }
-      });
-
-      map.addSource("pulses", {
-        type: "geojson",
-        data: { type: "FeatureCollection", features: [] }
-      });
-
-      map.addLayer({
-        id: "arcs",
-        type: "line",
-        source: "arcs",
-        paint: {
-          "line-color": ["get", "color"],
-          "line-width": 1.6,
-          "line-opacity": ["get", "opacity"]
-        }
-      });
-
-      map.addLayer({
-        id: "pulses",
-        type: "circle",
-        source: "pulses",
-        paint: {
-          "circle-radius": ["get", "radius"],
-          "circle-color": ["get", "color"],
-          "circle-opacity": ["get", "opacity"],
-          "circle-stroke-color": ["get", "color"],
-          "circle-stroke-width": 1
-        }
-      });
+      ensureLayers(map);
     });
 
     return () => {
       map.remove();
     };
   }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const nextStyle = getStyle(theme);
+    map.setStyle(nextStyle);
+    map.once("styledata", () => {
+      ensureLayers(map);
+    });
+  }, [theme]);
 
   useEffect(() => {
     let ws: WebSocket | null = null;
@@ -162,9 +136,18 @@ export default function AttackMap() {
     };
   }, []);
 
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    window.localStorage.setItem("attack-map-theme", next);
+  };
+
   return (
-    <div className="map-shell">
+    <div className={`map-shell theme-${theme}`}>
       <div id="map" className="map-container" />
+      <button className="panel theme-toggle" type="button" onClick={toggleTheme}>
+        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+      </button>
       <div className="panel legend">
         <h3>Attack Types</h3>
         {legendItems.map((item) => (
@@ -233,6 +216,73 @@ function updateLayers(events: EventPayload[], map: Map | null, now: number) {
     type: "FeatureCollection",
     features: pulseFeatures
   });
+}
+
+function getStyle(theme: "light" | "dark") {
+  if (MAP_TILE_URL) {
+    return {
+      version: 8,
+      sources: {
+        raster: {
+          type: "raster",
+          tiles: [MAP_TILE_URL],
+          tileSize: 256
+        }
+      },
+      layers: [
+        {
+          id: "raster",
+          type: "raster",
+          source: "raster"
+        }
+      ]
+    } as maplibregl.StyleSpecification;
+  }
+  return theme === "dark" ? DARK_STYLE_URL : LIGHT_STYLE_URL;
+}
+
+function ensureLayers(map: Map) {
+  if (!map.getSource("arcs")) {
+    map.addSource("arcs", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: [] }
+    });
+  }
+
+  if (!map.getSource("pulses")) {
+    map.addSource("pulses", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: [] }
+    });
+  }
+
+  if (!map.getLayer("arcs")) {
+    map.addLayer({
+      id: "arcs",
+      type: "line",
+      source: "arcs",
+      paint: {
+        "line-color": ["get", "color"],
+        "line-width": 1.6,
+        "line-opacity": ["get", "opacity"]
+      }
+    });
+  }
+
+  if (!map.getLayer("pulses")) {
+    map.addLayer({
+      id: "pulses",
+      type: "circle",
+      source: "pulses",
+      paint: {
+        "circle-radius": ["get", "radius"],
+        "circle-color": ["get", "color"],
+        "circle-opacity": ["get", "opacity"],
+        "circle-stroke-color": ["get", "color"],
+        "circle-stroke-width": 1
+      }
+    });
+  }
 }
 
 function buildArc(start: [number, number], end: [number, number], segments = 30) {
