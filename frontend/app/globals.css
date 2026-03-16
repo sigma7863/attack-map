@@ -28,6 +28,20 @@ html, body {
   height: 100vh;
 }
 
+.map-shell.theme-light {
+  color: #0f172a;
+}
+
+.map-shell.theme-light .panel {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+}
+
+.map-shell.theme-light .legend h3 {
+  color: #475569;
+}
+
 .map-container {
   position: absolute;
   inset: 0;
@@ -77,6 +91,14 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.theme-toggle {
+  top: 14px;
+  left: 14px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: inherit;
 }
 
 .status-dot {
